@@ -25,6 +25,7 @@ RUN mamba install --quiet --yes jupyter-rsession-proxy=2.1.0 jupyter-server-prox
 
 # create new mamba env
 RUN mamba create -n my_env python=3.12 matplotlib seaborn pandas numpy -y
+RUN mamba install -n my_env ipykernel -y
 RUN /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && conda activate my_env && mamba install ipykernel -y"
 
 USER jovyan
@@ -39,4 +40,5 @@ RUN mamba install -y gettext
 COPY entry.sh /bin
 RUN mkdir -p /home/jovyan/.irods
 
-ENTRYPOINT ["bash", "/bin/entry.sh"]
+#ENTRYPOINT ["exec", "jupyter", "lab", "--no-browser", "--LabApp.token=", "--LabApp.password="]
+#ENTRYPOINT ["bash", "/bin/entry.sh"]
