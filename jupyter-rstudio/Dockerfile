@@ -23,22 +23,23 @@ RUN rm Anaconda3-2024.10-1-Linux-x86_64.sh
 
 RUN mamba install --quiet --yes jupyter-rsession-proxy=2.1.0 jupyter-server-proxy=4.0.0
 
+EXPOSE 8888
+
 # create new mamba env
-RUN mamba create -n my_env python=3.12 matplotlib seaborn pandas numpy -y
-RUN mamba install -n my_env ipykernel -y
-RUN /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && conda activate my_env && mamba install ipykernel -y"
+RUN conda create -n my_env python=3.12 matplotlib seaborn pandas numpy -y
+RUN conda install -n my_env ipykernel -y
+RUN /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && conda activate my_env"
 
 USER jovyan
 RUN python -m ipykernel install --name "my_env" --user
 
-USER root
+
 RUN jupyter lab build
 
-EXPOSE 8888
-
-RUN mamba install -y gettext
+RUN conda install -y gettext
 COPY entry.sh /bin
 RUN mkdir -p /home/jovyan/.irods
 
+ENTRYPOINT ["bash", "-c", "source /opt/conda/etc/profile.d/conda.sh && conda activate my_env && exec jupyter lab --no-browser --LabApp.token='' --LabApp.password=''"]
 #ENTRYPOINT ["exec", "jupyter", "lab", "--no-browser", "--LabApp.token=", "--LabApp.password="]
 #ENTRYPOINT ["bash", "/bin/entry.sh"]
